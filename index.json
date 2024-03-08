@@ -1,0 +1,183 @@
+[
+{
+	"uri": "/",
+	"title": "Amazon VPC and AMAZON",
+	"tags": [],
+	"description": "",
+	"content": "START WITH AMAZON VPC AND AMAZON S3 Overview In this lab, you will explore the fundamental of Amazon VPC (Virtual Private Cloud) and Amazon S3 (Simple Storage Service). Gain an understanding of essential concepts and features within Amazon VPC, and learn how to create a basic VPC. Additionally, learn how resources within Amazon VPC, such as EC2 instances, can interact with AWS services like Amazon S3.\nContent Introduction to VPC Introduction to S3 Preparation steps Create an EC2 server Introduction to VPC Endpoint Clean up resources "
+},
+{
+	"uri": "/2-introductions3/1.creates3bucket/",
+	"title": "Create a S3 Bucket and upload file to the bucket",
+	"tags": [],
+	"description": "",
+	"content": "Create a S3 bucket Access the AWS Management Console interface: Locate and click on S3 Choose S3 In the S3 interface: Click on Create bucket In the Create bucket interface: Chooose region Asia Pacific (Singapore) ap-southeast-1 About bucket name, enter bucket-workshop For Object Ownership, select ACLs disabled (recommended) Then click on Create bucket. Check the status of your bucket. Follow these steps to upload any file from your computer (it can be a .txt file) to the bucket you just created. Click on the name of the bucket just created Click on Upload Then choose Add files and upload any file you want Click on Upload Then review the status of your bucket "
+},
+{
+	"uri": "/4-create-an-e2-server/1.createec2/",
+	"title": "Create EC2 server",
+	"tags": [],
+	"description": "",
+	"content": "Launch EC2 instance in Public Subnet Access the AWS Management Console interface: Locate and Click on EC2 Choose EC2 In the EC2 interface: Choose Singapore region Srcoll down Select Launch instance Provide a Name and tags for the instance, enter EC2 Public Choose the AMI: Select Amazon Linux Choose Amazon Linux 2 AMI Select an Instance type and opt to create a new key pair In the Create key pair interface: Enter Key pair name: workshop-keypair For Key pair type, choose RSA Choose .pem for Private key file format Then click on Create key pair Configure the Network: VPC - required: choose workshop-vpc Subnet: choose Public Subnet 2 Enable Auto-assign public IP For Firewall (Security Group), select Select existing security group Choose Public Subnet SG Check out the configuration and choose Launch instance Complete the instance creation Launch EC2 instance in Private Subnet In the EC2 interface:\nSelect Instances Choose Launch instances Provide a Name and tags, enter EC2 Private\nChoose the AMI: Select Amazon Linux Choose Amazon Linux 2 AMI Choose Key pair name: workshop-keypair Configure the Network VPC - required: choose workshop-vpc Subnet: choose Private Subnet 1 Disable Auto-assign public IP For Firewall (Security Group), select Select existing security group Choose Private Subnet SG Review and click on Launch instance Complete the instance creation. Check the status of 2 EC2 instances "
+},
+{
+	"uri": "/5-introductiontovpcendpoint/1.creates3gatewayendpoint/",
+	"title": "Create S3 Gateway Endpoint",
+	"tags": [],
+	"description": "",
+	"content": "Create S3 Gateway Endpoint Access the AWS Management Console interface: Locate and click on VPC Choose VPC In the VPC interface: Choose Endpoints Click on Create endpoint In the Create endpoint interface: Name tag: Enter workshop-endpoint Service category: choose AWS services Scroll down On the search bar, type S3 Then choose Service Name: com.amazonaws.ap-southeast-1.s3 and Type: Gateway VPC: choose workshop-vpc Next: Route tables: choose Route Table Private Policy: Full access Click on Create endpoint We know that EC2 instances, while able to access the internet, cannot interact with S3 buckets over the internet. Therefore, we will remove the NAT Gateway and privately interact with S3 through the S3 Gateway endpoint.\nAccess the VPC interface:\nChoose NAT gateways Choose workshop-NATGW Click on Actions and choose Delete NAT gateway Type delete and click on Delete In the VPC interface: Choose Elastic IPs Select the Elastic IP Address we created. Click Action and choose Release Elastic IP Address Then choose Release After deleting NAT Gateway, we will look at the Route Table Private You can observe that the rule going to the Internet in the Private Route table has been transitioned to the Blackhole state. This means that our EC2 instance in the Private subnet will not be able to access the Internet. You can use the ping aws.amazon.com command to verify. Now, we will explore how resources in the VPC can establish private connections to an S3 bucket. "
+},
+{
+	"uri": "/3-preparation-steps/1.vpc/",
+	"title": "Create VPC",
+	"tags": [],
+	"description": "",
+	"content": "Create VPC Access the AWS Management Console interface: Locate and click on VPC Choose VPC In this lab, we will practice creating a VPC in the Singapore region: Choose Region Choose Asia Pacific (Singapore) ap-southeast-1 Within the VPC interface: Select Your VPC Click on Create VPC Follow these steps to create a VPC: Resources to create, choose VPC only Enter Name tag as workshop-vpc Set IPv4 CIDR to 10.10.0.0/16 Click on Create VPC: You have successfully created a VPC. Review the details of the newly created VPC. Ensure that Enable DNS resolution and DNS Hostname are enabled: Click on Actions Go to Edit VPC settings Tick the box and choose Save Next, we will practice creating Subnet. "
+},
+{
+	"uri": "/1-introduction-to-vpc/",
+	"title": "Introduction to Amazon VPC",
+	"tags": [],
+	"description": "",
+	"content": "\nOverview Amazon VPC (Virtual Private Cloud) is a service that allows users to create a virtual network and control all inbound and outbound network traffic within that network. This concept resembles the design and implementation of a distinct standalone network environment in an on-premise data center, a practice still widely employed across many countries.\nWithin this dedicated VPC, users possess comprehensive control over their virtual network environment. This control encompasses the initiation and operation of AWS resources, the ability to choose IP address ranges, establish network subnets, and configure routing tables and network gateways.\nRegion is a concept that describes multiple extremely large data center clusters of AWS located in a specific geographical area. In an AWS account, you can create a maximum of 5 VPCs in one AWS Region. Each VPC is distinguished by different IP address ranges.\nThe IPv4 address range is defined by selecting a Classless Inter-Domain Routing (CIDR) notation, such as 10.0.0.0/16.\nAWS recommends selecting one of three following CIDR blocks (according to RFC-1918):\n192.168.0.0 - 192.168.255.255. Example: 192.168.0.0/20\n10.0.0.0 - 10.255.255.255. Example: 10.0.0.0/16\n172.16.0.0 - 172.31.255.255. Example: 172.31.0.0/16\nCrucially, these ranges must not overlap with any other connected networks.\nContents Subnets Route Table Internet Gateway NAT Gateway Security Group "
+},
+{
+	"uri": "/1-introduction-to-vpc/1.1-subnets/",
+	"title": "Subnets",
+	"tags": [],
+	"description": "",
+	"content": "Subnets A subnet is a segment of the IP address range that you use when provisioning your Amazon VPC. It directly provides the active network range to the AWS resources that may run within it, such as Amazon EC2 and Amazon RDS (Amazon Relational Database Service). Subnets are identified through CIDR blocks (e.g., 10.0.1.0/24 and 192.168.0.0/24), and the subnet’s CIDRs must be within the VPC’s CIDR.\nAn Availability Zone (AZ) is a single or multi-data center located within a Region and identified based on geographical location. Within an AZ, there can be one or more subnets. However, a subnet can only reside in a single AZ and cannot extend to other AZs.\nSubnets are categorized as:\nPublic subnet – The subnet has a direct route to an internet gateway. Resources in a public subnet can access the public internet. Private subnet – The subnet does not have a direct route to an internet gateway. Resources in a private subnet require a NAT device to access the public internet. VPN-only subnet – The subnet has a route to a Site-to-Site VPN connection through a virtual private gateway. The subnet does not have a route to an internet gateway. Isolated subnet – The subnet has no routes to destinations outside its VPC. Resources in an isolated subnet can only access or be accessed by other resources in the same VPC. Regardless of the subnet type, the internal IP addresses within the subnet are always private, meaning they cannot be directly connected to from outside the Internet.\nWhen selecting CIDR for subnets, consider the number of IPs needed for allocated resources (such as EC2, Lambda, etc.). For example, creating a subnet with 10.0.1.0/24 allows for 256 IPs, excluding AWS\u0026rsquo;s 5 reserved IPs, leaving 251 available IPs. Plan the quantity of subnets to be created in the future for easy management.\nUtilize subnetting tools.\n"
+},
+{
+	"uri": "/2-introductions3/",
+	"title": "Introduction to S3",
+	"tags": [],
+	"description": "",
+	"content": "Introduction to Amazon S3 Overview Amazon Simple Storage Service (Amazon S3) is an object storage service offering industry-leading scalability, data availability, security, and performance. With cost-effective storage classes and easy-to-use management features, you can optimize costs, organize data, and configure fine-tuned access controls to meet specific business, organizational, and compliance requirements.\nS3 is built to meet the needs of customers of all sizes and industries who can use this service to store and protect any amount of data.\nAmazon S3 is designed for 99.999999999% (11 9’s) endurance and stores the data of millions of applications for companies worldwide.\nContent Create S3 Bucket and upload file to the bucket\n"
+},
+{
+	"uri": "/4-create-an-e2-server/2.connecttoec2andownloadawscli/",
+	"title": "Connect To EC2 and Download AWS CLI",
+	"tags": [],
+	"description": "",
+	"content": "Check Connection There are several ways to connect to EC2 instances. You can follow the instructions to connect to EC2 using PuTTY. In this lab, we will use MobaXterm to establish the connection.\nDownload MobaXterm Click on GET MOBAXTERM NOW In the interface: Choose Download now Using MobaXterm After downloading MobaXterm, extract and open it. Access EC2 interface: Choose EC2 Public Copy the Public IPv4 address Open MobaXterm Choose Session Then click on SSH Enter the Remote host (Public IPv4 address) Specify the username as ec2-user Choose the Use private key option and provide the path to the workshop-keypair.pem file created and downloaded during EC2 instance creation. Then click on OK Successful connection. Execute the following command to test the internet connection of the EC2 Public instance: ping amazon.com -c5 Reference documentation for downloading AWS CLI In EC2 Public, to install the AWS CLI, run the following commands: curl \u0026quot;https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\u0026quot; -o \u0026quot;awscliv2.zip\u0026quot;\nIf the line unzip awscliv2.zip appears, press Enter.\nRun the final command: sudo ./aws/install Confirm the installation with the following command: aws --version If the aws command cannot be found, you might need to restart your terminal or follow the troubleshooting in Troubleshoot AWS CLI errors.\nYou have successfully download AWS CLI on the EC2 instances in the public subnet that can connect to the internet.\nNow, we use aws s3 ls to list all user owned buckets After running the command aws s3 ls, we encountered an error: Unable to locate credentials.\nConnect to the EC2 Private Server and Check Internet Connection Access to EC2\nSelect Instances Select EC2 Private Select Details Copy Private IPv4 addresses Perform a ping test to the EC2 Private’s private IP address to test the connection from the EC2 Public server to the EC2 Private server. Use the following command: ping 10.10.3.124\nEC2 Private will not have a public IP address because we are not assigning this server a public IP. To be able to ssh into EC2 Private, we will make an ssh connection from EC2 Public through EC2 Private private IP address. Download the pscp tool to the same folder containing the workshop-keypair.ppk file to copy the workshop-keypair.pem file from our computer to EC2 Public You download an RSA and DSA key generation utility as puttygen.exe\nYou download an SCP client, i.e. command-line secure file copy is pscp.exe\nWe use puttygen.exe to generate key Select Load Choose workshop-keypair Select OK Complete the generation key. Launch Command Prompt. Change the path to the folder you just downloaded pscp. Run the command below to upload the workshop-keypair.pem file to the /home/ec2-user/ directory of the EC2 Public server. You will need to replace the public IP address of EC2 Public parameter before running the command. Command Prompt\rpscp -i workshop-keypair.ppk workshop-keypair.pem ec2-user@\u0026lt;EC2 PUBLIC public IP address\u0026gt;:/home/ec2-user/ Return to the EC2 connection interface. Make sure you copy the aws-keypair.pem file to the EC2 Public server, we execute the command: Linux\rls Update the permissions for the workshop-keypair.pem file by running the chmod 400 aws-keypair.pem command. AWS requires the key pair file to be restricted before it can be used to connect to the EC2 server. - chmod 400 workshop-keypair.pem SSH to EC2 private server OpenSSH\rssh -i workshop-keypair.pem ec2-user@\u0026lt;EC2 Private server\u0026#39;s private IP address\u0026gt; Perform ping test to aws.amazon.com. As you can see, we cannot connect internet from EC2 Private. In the next step, we will create NAT Gateway to allow the EC2 Private server to connect to the internet in the outbound direction. Keep the connection to EC2 Private so that we can check the connection to internet after finishing creating and configuring NAT Gateway. Linux\rping aws.amazon.com "
+},
+{
+	"uri": "/3-preparation-steps/2.subnet/",
+	"title": "Create Subnet",
+	"tags": [],
+	"description": "",
+	"content": "Create Subnet In the VPC interface: Select Subnets Select Create Subnet In the Create Subnet interface: Choose workshop-vpc In the Subnet settings interface: Subnet name: Enter Public Subnet 1 Select AZ ap-southeast-1a IPv4 subnet CIDR block: Enter 10.10.1.0/24 Scroll down and choose Add new subnet Continue the process with the following information: Public Subnet 2 with CIDR of 10.10.2.0/24 located in Availability Zone ap-southeast-1b Private Subnet 1 with CIDR of 10.10.3.0/24 located in Availability Zone ap-southeast-1a Private Subnet 2 with CIDR of 10.10.4.0/24 located in Availability Zone ap-southeast-1b Verify the information and then choose Create Subnet. Allow Automatic Allocation of Public IP Addresses for 2 Public Subnets In the Subnets interface: Select Public Subnet 1 Select Actions Select Edit subnets settings Under Auto-assign IP settings: Select Enable auto-assign public IPv4 address Then Save Repeat the same process for Public Subnet 2 "
+},
+{
+	"uri": "/5-introductiontovpcendpoint/2.ec2privateaccesss3/",
+	"title": "Interact with S3 via AWS CLI",
+	"tags": [],
+	"description": "",
+	"content": "Interact with S3 via AWS CLI Now, In order for our private EC2 to interact with the S3 bucket, we need to modify the IAM role for this private EC2.\nAccess the EC2 interface: Click on Instances Choose EC2 Private Click on Actions Click on Security Click on Modify IAM role In the Modify IAM role interface: On the search bar, choose EC2FullAccessS3 Click on Update IAM role After modifying IAM role, enter aws s3 ls and see the result. We still encounter the error Unable to locate credentials.\nThis could be due to our private EC2 not having internet access, making it unable to determine which endpoint to go through. There are two ways we can address this issue.\nEnter aws configure Default region name: type ap-southeast-1 Here, ap-southeast-1 is the region we are specifying for the endpoint we created because the private EC2 doesn\u0026rsquo;t have internet connectivity and, therefore, cannot determine which endpoint to pass through. Then type aws s3 ls to see the result. Now, we can see our bucket bucket-workshop Alternatively, we use the command aws s3 ls \u0026ndash;region ap-southeast-1. Here, \u0026ndash;region ap-southeast-1 is also specifying the endpoint that we created in the Singapore region. Firstly, you need to use the aws configure command to set the default region name to None so that you can execute the aws s3 ls \u0026ndash;region ap-southeast-1 command. Linux Terminal\raws s3 ls --region ap-southeast-1 You can explore additional commands for further hands-on practice.\nThrough this lab, we can understand how resources within a VPC can establish private connections to certain AWS services such as S3.\nNext, we will proceed to the step of deleting the resources.\n"
+},
+{
+	"uri": "/1-introduction-to-vpc/1.2-route-table/",
+	"title": "Route Table",
+	"tags": [],
+	"description": "",
+	"content": "Route table The Route Table, also referred to as the routing table, is responsible for providing routing instructions within a network and is associated with specific subnets.\nFor instance, in the scenario where a Virtual Private Cloud (VPC) is established with the network layer 10.0.0.0/16, along with two subnets, 10.0.0.0/24 and 10.0.1.0/24, each default subnet will be allocated a default route table.\nInside the route table, there will exist a route entry with the following details:\nDestination: 10.0.0.0/16 Target: local This particular route entry signifies that resources created within the same VPC can communicate with each other.\n"
+},
+{
+	"uri": "/3-preparation-steps/3.internetgateway/",
+	"title": "Create Internet Gateway",
+	"tags": [],
+	"description": "",
+	"content": "Create Internet Gateway In the VPC interface: Select Internet gateways Click on Create internet gateway In the Create internet gateway: For the Name tag, enter workshop-internet-gateway Then click on Create internet gateway Complete the creation of the Internet Gateway Implement Attach VPC: Click on Actions Click on Attach to VPC Select workshop-vpc, the VPC ID will be automatically populated Click on Attach internet gateway Check the state of the Internet Gateway. Next, we will configure the route table for the subnets. "
+},
+{
+	"uri": "/4-create-an-e2-server/3.natgateway/",
+	"title": "Create NAT Gateway",
+	"tags": [],
+	"description": "",
+	"content": "Create NAT Gateway Access the VPC interface: Choose Elastic IPs Click on Allocate Elastic IP address In the Allocate Elastic IP address interface: Network border group: choose ap-southeast-1 Public IPv4 address pool: Choose Amazon\u0026rsquo;s pool of IPv4 addresses Scroll down and choose Allocate In the VPC interface: Choose NAT gateways Click on Create NAT gateway In the Create NAT gateway interface: Name: Enter workshop-NATGW Subnet: Choose Public Subnet 1 Connectivity type: Choose Public Elastic IP allocation ID: Select recently created Elastic IP Review and click on Create NAT gateway. Configure the Route Table Private In the VPC interface: Choose Route tables Choose Route Table Private Click on Actions and select Edit routes In the Edit routes interface: Select Add route Destination: Enter 0.0.0.0/0 Target: NAT Gateway and choose workshop-NATGW Click on Save changes After creating NAT gateway, test ping aws.amazon.com successfully from EC2 Private Now, let\u0026rsquo;s execute the aws s3 ls command in the terminal EC2 Private. After running the command aws s3 ls, we encountered an error: Unable to locate credentials. The error observed seems identical to that on the EC2 in the public subnet. This can be explained through the permissions of the S3 bucket. "
+},
+{
+	"uri": "/1-introduction-to-vpc/1.3-internet-gateway/",
+	"title": "Internet Gateway",
+	"tags": [],
+	"description": "",
+	"content": "\nInternet Gateway An Internet gateway is a horizontally scaled, redundant, and highly available VPC component that allows communication between your VPC and the internet. It supports IPv4 and IPv6 traffic.\nAn internet gateway enables resources in your public subnets (such as EC2 instances) to connect to the internet if the resource has a public IPv4 address or an IPv6 address. Similarly, resources on the internet can initiate a connection to resources in your subnet using the public IPv4 address or IPv6 address.\n"
+},
+{
+	"uri": "/3-preparation-steps/",
+	"title": "Preparation Steps",
+	"tags": [],
+	"description": "",
+	"content": "Preparation Steps In this lab, we will be constructing a model based on the following diagram:\nContent Create VPC Create Subnet Create Internet Gateway Create Route Table Create Security Group "
+},
+{
+	"uri": "/4-create-an-e2-server/",
+	"title": "Create EC2 server",
+	"tags": [],
+	"description": "",
+	"content": "Create EC2 server In this step, we will create 2 EC2 servers (EC2 instances) following the architecture shown below:\nContent Create EC2 server Connect to EC2 public and download AWS CLI Create NAT Gateway Create IAM Role "
+},
+{
+	"uri": "/3-preparation-steps/4.route-table/",
+	"title": "Create Route table",
+	"tags": [],
+	"description": "",
+	"content": "Create Route table In the VPC interface: Choose Route tables Click on Create route table In the Create route table interface: Name: Enter Route Table Public VPC: choose workshop-vpc Then click on Create route table Click on Actions Choose Edit routes In the Edit routes interface, choose Add route Fill in the Destination: 0.0.0.0/0 representing the Internet. In the Target section, choose Internet Gateway, then select the created Internet Gateway (workshop-internet-gateway). Click on Save changes Ensure that Route Table Public is selected Select Actions, then click on Edit subnet associations In the Edit subnet associations interface, choose Public Subnet 1 and Public Subnet 2 Then click on Save associations Review and confirm the updated Subnet associations. Next, we will create route table for private subnet In the Route tables interface, choose Create route table Name: Enter Route Table Private VPC: choose workshop-vpc Then click on Create route table You have successfully created a route table for private subnet Ensure that Route Table Private is selected Select Actions, then click on Edit subnet associations In the Edit subnet associations interface, choose Private Subnet 1 and Private Subnet 2 Then click on Save associations Review and confirm the updated Subnet associations. "
+},
+{
+	"uri": "/4-create-an-e2-server/4.createtiamrole/",
+	"title": "Cretate IAM Role",
+	"tags": [],
+	"description": "",
+	"content": "Overview Problem: We have 2 EC2 instances in public and private subnets that can access the internet. Can we use the aws s3 ls to list S3 bucket?\nThe answer is no. As you observed when entering the command in the EC2 terminal in the public subnet or private subnet. Even though there is a public S3 endpoint, we don\u0026rsquo;t have the permission to see the data in S3 buckets as it poses a security risk, potentially compromising data security.\nIt\u0026rsquo;s similar to walking down a street and seeing a beautiful house. However, you don\u0026rsquo;t have the right to enter the house, see how many rooms there are, or what belongings are inside.\nThis can be explained here\nSo the question is, what can we do to enable EC2 instances to access and view data within S3 buckets?\nWe have two options:\nOption 1: Assign access/secret key to the EC2 instance\u0026rsquo;s terminal using the aws configure command. This method is straightforward but highly discouraged. It should be avoided. Option 2: Use IAM Role. We can assign access permissions to S3, such as ReadOnly or FullAccess, to the desired EC2 instances. In this lab, we will practice creating a IAM Role and assigning it to the EC2 instance in the private subnet.\nCreate IAM Role Access the AWS Management Console interface: Locate and click on IAM Choose IAM Within the IAM interface: Click on Roles Then choose Create role In the Create role interface: About Trusted entity type, choose AWS service About Service or use case, choose EC2 Choose a use case for the specified service, choose EC2 Then choose Next On the search bar: Type S3 Then find AmazonS3FullAccess and select it Check and choose Next Enter EC2FullAccessS3 as Role name. Check and choose Create role. Finished. Now, we will create an endpoint to enable private connectivity for resources inside the VPC to securely access the S3 bucket. "
+},
+{
+	"uri": "/1-introduction-to-vpc/1.4-nat-gateway/",
+	"title": "NAT Gateway",
+	"tags": [],
+	"description": "",
+	"content": "\nNAT Gateway A NAT gateway is a Network Address Translation (NAT) service. You can use a NAT gateway so that instances in a private subnet can connect to services outside your VPC but external services cannot initiate a connection with those instances.\nAWS offers two methods for granting EC2s in a Private subnet access to the Internet: NAT Instance and NAT Gateway. In most scenarios, it is advisable to opt for NAT Gateway over NAT Instance due to its enhanced availability, bandwidth, and reduced administrative overhead.\nTo set up a NAT gateway, you are required to specify a public subnet and an Elastic IP address. Ensure that the chosen Elastic IP address is not associated with any other instances or network interfaces.\n"
+},
+{
+	"uri": "/5-introductiontovpcendpoint/",
+	"title": "Introduction to VPC Endpoint",
+	"tags": [],
+	"description": "",
+	"content": "\nOverview VPC Endpoints A VPC endpoint lets you privately connect your VPC to an AWS Cloud service without requiring an Internet gateway, a Network Address Translation (NAT) device, a VPN connection, or AWS Direct Connect.\nTraffic between your VPC and the AWS Cloud service does not leave the Amazon network.\nEndpoints are virtual devices. They are horizontally scaled, redundant, and highly available VPC components that allow communication from resources in your VPC without imposing availability risks or bandwidth constraints on your network traffic.\nVPC Endpoint policy VPC Endpoint may support a VPC endpoint policy. A VPC endpoint policy is an AWS Identity and Access Management (IAM) resource policy that you attach to an endpoint when you create or modify the endpoint.\nIf you do not attach a policy when you create an endpoint, AWS attaches a default policy for you that allows full access to the service.\nThere are two types of VPC endpoints that you can use to access services privately:\nGateway VPC Endpoints: support Amazon S3 and Amazon DynamoDB Interface VPC Endpoints: services powered by AWS PrivateLink, including many AWS services. In this lab, we are focusing solely on Gateway VPC Endpoints which support Amazon S3.\nYou can read more documentation about S3 endpoints here\nContent Create S3 Gateway Endpoint Interact with S3 via AWS CLI "
+},
+{
+	"uri": "/3-preparation-steps/5.securitygroup/",
+	"title": "Create Security Group",
+	"tags": [],
+	"description": "",
+	"content": "Create a Security Group for a Server in a Public Subnet In the VPC interface: Select Security Group Select Create Security Group In the Create Security Group interface: Security Group Name: Enter Public Subnet SG Description: Enter Allow SSH and Ping for servers in the public subnet. Select workshop-vpc VPC Configure Inbound rules: In Inbound rules, click Add rule. Select Type: SSH and Source: My IP. (Use your public IPv4 address) Select Add rule to add a new rule. Select Type: All ICMP - IPv4 and Source: Anywhere. Allow ping from any IP address. Check Outbound rules and select Create security group Complete the creation of the security group for the server located in the public subnet Create a Security Group for a Server in a Private Subnet In the VPC interface: Select Security Groups Select Create security group Security Group Name: Enter Private Subnet SG Description: Enter Allow SSH and Ping for servers in the private subnet. Select workshop-vpc VPC Configure Inbound rules: In Inbound rules, select Add rule. Select Type: SSH and leave Source: Custom. Search and select Public Subnet SG to allow SSH from servers in the public subnet. Select Add rule to add a new rule Select Type: All ICMP IPv4 and Source: Anywhere. Allow ping from any IP address. Then click Create security group Two Security Groups have been created for servers located in the public and private subnets: Next, we will proceed to create two EC2 servers. "
+},
+{
+	"uri": "/1-introduction-to-vpc/1.5-security-group/",
+	"title": "Security Group",
+	"tags": [],
+	"description": "",
+	"content": "Security group A security group is a stateful virtual firewall that controls inbound and outbound network traffic to AWS resources and Amazon EC2 instances.\nBy default, a Security Group blocks all inbound traffic and allows all outbound traffic.\nWhen you create a VPC, it comes with a default security group. You can create additional security groups for a VPC, each with their own inbound and outbound rules. You can specify the source, port range, and protocol for each inbound rule. You can specify the destination, port range, and protocol for each outbound rule.\nYou can add or remove rules for a security group (also referred to as authorizing or revoking inbound or outbound access). A rule applies either to inbound traffic (ingress) or outbound traffic (egress). You can grant access to a specific source or destination.\nOperates at the network interface level (Instance).\n"
+},
+{
+	"uri": "/6-cleanup/",
+	"title": "Clean up resources",
+	"tags": [],
+	"description": "",
+	"content": "Terminate EC2 instances Access the EC2 interface: Choose Instances Choose EC2 Public and EC2 Private Click on Instance state Select Terminate instance Remove VPC Endpoint Access the VPC interface: Choose Endpoints Choose workshop-endpoint Click on Actions and choose Delete VPC endpoints Type delete and click on Delete. Remove Internet Gateway In the VPC interface: Choose Internet gateways Choose workshop-internet-gateway Click on Actions and choose Detach from VPC Click on Detach internet gateway. Successfully detach Internet Gateway Click on Actions and choose Delete internet gateway Type delete and click on Delete. You have suceesfully deleted workshop-internet-gateway. Remove VPC Access the VPC interface: Choose Your VPCs Choose workshop-vpc Click on Actions and choose Delete VPC Type delete and click on Delete. You have suceesfully deleted workshop-vpc. Remove S3 bucket Access the S3 interface: Choose bucket-workshop Click on Empty Type permanently delete and click on Empty. You have suceesfully emptied bucket bucket-workshop. Return to the S3 interface: Choose bucket-workshop and click on Delete Type bucket-workshop and click on Delete bucket. You have successfully deleted bucket workshop-bucket. "
+},
+{
+	"uri": "/categories/",
+	"title": "Categories",
+	"tags": [],
+	"description": "",
+	"content": ""
+},
+{
+	"uri": "/tags/",
+	"title": "Tags",
+	"tags": [],
+	"description": "",
+	"content": ""
+}]

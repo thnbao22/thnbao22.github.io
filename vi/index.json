@@ -1,0 +1,183 @@
+[
+{
+	"uri": "/vi/",
+	"title": "Bắt đầu với Amazon VPC và Amazon S3",
+	"tags": [],
+	"description": "",
+	"content": "Bắt đầu với Amazon VPC và Amazon S3 Tổng quan Trong bài lab này, bạn sẽ tìm hiểu về các khái niệm cơ bản của Amazon VPC (Virtual Private Cloud) và Amazon S3 (Simple Storage Service). Bạn sẽ hiểu về các khái niệm và tính năng cơ bản trong Amazon VPC, và học cách tạo một VPC cơ bản. Ngoài ra, bạn cũng sẽ tìm hiểu cách các tài nguyên trong Amazon VPC, chẳng hạn như các EC2 instances, có thể tương tác với các dịch vụ AWS như Amazon S3.\nNội dung Giới thiệu về VPC Giới thiệu về S3 Các bước chuẩn bị Tạo EC2 server Giới thiệu về VPC Endpoint Xoá tài nguyên "
+},
+{
+	"uri": "/vi/1-introduction-to-vpc/",
+	"title": "Giới thiệu về Amazon VPC",
+	"tags": [],
+	"description": "",
+	"content": "\nTổng quan Amazon VPC (Virtual Private Cloud) là một dịch vụ cho phép người dùng tạo một mạng ảo (virual network) và kiểm soát toàn bộ network in/out của mạng đó. Khái niệm này tương tự như việc thiết kế và triển khai một mạng độc lập riêng biệt hoạt động trong một trung tân dữ liệu on-premise, loại hình này vẫn còn phổ biến hiện nay tại nhiều nơi trên thế giới.\nBên trong VPC tuỳ chỉnh đó, bạn có toàn quyền kiểm soát môi trường mạng ảo của mình, vừa có khả năng khởi tạo và chạy các tài nguyên AWS, vừa có thể lựa chọn phạm vi địa chỉ IP, tạo các mạng con và cấu hình các bảng định tuyến và cổng kết nối mạng.\nRegion là một khái niệm mô tả nhiều cụm trung tâm dữ liệu cực kỳ lớn của AWS đặt tại một khu vực địa lý cụ thể. Trong một tài khoản AWS, bạn có thể tạo tối đa 5 VPCs (Virtual Private Clouds) trong một AWS Region. Mỗi VPC được phân biệt bằng các dải địa chỉ IP khác nhau.\nTa chỉ định phạm vi địa chỉ IPv4 bằng cách lựa chọn một Classless Inter-Domain Routing (CIDR), chẳng hạn như 10.0.0.0/16.\nAWS đề xuất chọn 1 trong 3 dải CIDR sau (theo chuẩn RFC - 1918):\n192.168.0.0 - 192.168.255.255. Ví dụ: 192.168.0.0/20\n10.0.0.0 - 10.255.255.255. Ví dụ: 10.0.0.0/16\n172.16.0.0 - 172.31.255.255. Ví dụ: 172.31.0.0/16\nCác phạm vi địa chỉ VPC không được phép trùng với bất kì mạng nào khác mà nó sẽ được kết nối tới.\nNội dung Subnets Route Table Internet Gateway NAT Gateway Security Group "
+},
+{
+	"uri": "/vi/1-introduction-to-vpc/1.1-subnets/",
+	"title": "Subnets ",
+	"tags": [],
+	"description": "",
+	"content": "Subnets Subnet là một phân đoạn của dải địa chỉ IP mà bạn sử dụng khi khởi tạo Amazon VPC, cung cấp trực tiếp dải mạng hoạt động cho các tài nguyên AWS có thể chạy bên trong nó như Amazon EC2, Amazon RDS (CSDL Quan hệ Amazon),… Các subnet cũng được xác định thông qua CIDR block (ví dụ: 10.0.1.0/24 và 192.168.0.0/24) và bắt buộc các CIDR của subnet phải nằm trong CIDR của VPC.\nAvailability Zone (AZ) là một trung tâm dữ liệu con, nằm bên trong region và được xác định theo vị trí địa lí. Bên trong AZ có thể có một hoặc nhiều subnet, nhưng một subnet chỉ có thể nằm trong duy nhất một AZ mà không thể mở rộng sang AZ khác.\nSubnets có thể chia thành các loại:\nPublic subnet – Subnet này có đường truyền trực tiếp tới Internet Gateway. Tài nguyên trong public subnet có thể truy cập Internet. Private subnet – Subnet này không có đường truyền trực tiếp tới Internet Gateway. Tài nguyên trong private subnet cần một thiết bị NAT để có thể truy cập Internet. VPN-only subnet – Subnet này có đường truyền đến VPN Site-to-Site connection thông qua virtual private gateway. Subnet này không có đường truyền ra ngoài internet. Isolated subnet – Subnet này không có đường truyền đến các destination ngoài VPC của nó. Các tài nguyên trong isolated subnet chỉ có thể truy cập hoặc được truy cập bởi các tài nguyên khác trong cùng một VPC. Bất kể loại mạng con nào, dải địa chỉ IP nội bộ của subnet luôn là private (nghĩa là từ bên ngoài Internet không thể kết nối trực tiếp tới các địa chỉ thuộc dải này).\nKhi chọn CIDR cho subnet, chú ý số lượng IP cho các resource cần cấp phát (EC2, Lambda…). Ví dụ: Bạn tạo 1 subnet 10.0.1.0/24 sẽ chứa được 256 IP trừ đi 5 reserve IP của AWS, tức là còn 251 IP khả dụng Số lượng subnet dự tính sẽ tạo trong tương lai. Đặt số sao cho dễ quản lí\nSử dụng công cụ chia subnets.\n"
+},
+{
+	"uri": "/vi/4-create-an-e2-server/1.createec2/",
+	"title": "Tạo EC2 server",
+	"tags": [],
+	"description": "",
+	"content": "Tạo EC2 nằm trong Public Subnet Truy cập giao diện AWS Management Console: Tìm EC2 Chọn EC2 Trong giao diện EC2: Chọn Singapore region Cuộn xuống Chọn Launch instance Nhập Name và tags của instance, nhập vào EC2 Public Chọn AMI: Chọn Amazon Linux Chọn Amazon Linux 2 AMI Chọn một Instance type và lựa chọn tạo a new key pair Trong giao diện Create key pair : Nhập Key pair name: workshop-keypair Về Key pair type, Chọn RSA Chọn đuôi .pem cho Private key file format Rồi nhấn vào Create key pair Thực hiện cấu hình Network: VPC - required: Chọn workshop-vpc Subnet: Chọn Public Subnet 2 Enable Auto-assign public IP Firewall (Security Group), chọn Select existing security group Chọn Public Subnet SG Kiểm tra cấu hình và Chọn Launch instance Hoàn thành tạo instance. Tạo EC2 nằm trong Private Subnet Trong giao diện EC2:\nChọn Instances Chọn Launch instances Provide a Name và tags, enter EC2 Private\nChọn AMI: Chọn Amazon Linux Chọn Amazon Linux 2 AMI Chọn Key pair name: workshop-keypair Thực hiện cấu hình Network: VPC - required: Chọn workshop-vpc Subnet: Chọn Private Subnet 1 Disable Auto-assign public IP Firewall (Security Group), Chọn Select existing security group Chọn Private Subnet SG Xem lại và nhấn Launch instance Hoàn thành tạo instance. Kiểm tra trạng thái của 2 EC2 instance. "
+},
+{
+	"uri": "/vi/2-introductions3/1.creates3bucket/",
+	"title": "Tạo S3 Bucket và tải file lên bucket",
+	"tags": [],
+	"description": "",
+	"content": "Tạo 1 S3 bucket Truy cập giao diện AWS Management Console: Tìm S3 Chọn S3 Trong giao diện S3 : Chọn Create bucket Trong giao diện Create bucket: Chọn region Asia Pacific (Singapore) ap-southeast-1 Đối với bucket name, nhập bucket-workshop Đối với Object Ownership, chọn ACLs disabled (recommended). Chọn Create bucket. Kiểm tra trạng thái bucket của bạn. Thực hiện các bước sau để tải lên bất kì file từ máy tính của bạn (có thể là 1 file .txt) lên bucket bạn vừa tạo. Nhấn vào tên của bucket vừa tạo. Chọn Upload Rồi chọn Add files và tải lên bất kì file bạn muốn. Chọn Upload Kiểm tra lại trạng thái bucket của bạn "
+},
+{
+	"uri": "/vi/5-introductiontovpcendpoint/1.creates3gatewayendpoint/",
+	"title": "Tạo S3 Gateway Endpoint",
+	"tags": [],
+	"description": "",
+	"content": "Tạo S3 Gateway Endpoint Truy cập giao diện AWS Management Console: Tìm VPC Chọn VPC Trong giao diện VPC: Chọn Endpoints Nhấn Create endpoint Trong giao diện Create endpoint: Name tag: Enter workshop-endpoint Service category: Chọn AWS services Kéo xuống Trên thanh tìm kiếm, gõ S3 Rồi chọn Service Name: com.amazonaws.ap-southeast-1.s3 and Type: Gateway VPC: chọn workshop-vpc Tiếp theo: Route tables: Chọn Route Table Private Policy: Full access Nhấn Create endpoint Ta biết rằng các EC2 instance dù có thể đi ra internet nhưng không thể thao tác với S3 bucket thông qua internet nên ta sẽ xoá đi NAT Gateway và tương tác riêng tư với S3 thông qua Gateway endpoint S3.\nTruy cập giao diện VPC:\nChọn NAT gateways Chọn workshop-NATGW Nhấn Actions và chọn Delete NAT gateway Gõ delete và nhấn Delete Trong giao diện VPC: Chọn Elastic IPs Chọn Elastic IP Address ta đã tạo. Nhấn Action và chọn Release Elastic IP Address Rồi chọn Release Sau khi xoá NAT Gateway, ta sẽ xem lại Route Table Private Bạn có thể thấy rule đi ra ngoài Internet của Route table Private đã bị chuyển sang trạng thái Blackhole. Điều này có nghĩa là EC2 Private của chúng ta sẽ không thể đi ra ngoài Internet. Bạn có thể dùng câu lệnh ping aws.amazon.com để kiểm tra. Bây giờ, chúng ta sẽ khám phá cách các tài nguyên trong VPC có thể kết nối riêng tư đến một S3 bucket. "
+},
+{
+	"uri": "/vi/3-preparation-steps/1.vpc/",
+	"title": "Tạo VPC",
+	"tags": [],
+	"description": "",
+	"content": "Tạo 1 VPC Truy cập giao diện AWS Management Console: Tìm VPC Chọn VPC Trong bài lab này, ta sẽ thực hành tạo VPC trên Region Singapore: Chọn Region Chọn Asia Pacific (Singapore) ap-southeast-1 Trong giao diện VPC: Chọn Your VPC Chọn Create VPC Tiến hành các bước sau để tạo VPC: Resources to create, chọn VPC only Name tag, nhập workshop-vpc IPv4 CIDR, nhập 10.10.0.0/16 Chọn Create VPC: Bạn đã tạo thành công một VPC. Xem chi tiết của VPC vừa tạo. Đảm bảo rằng Enable DNS resolution và DNS Hostname được cho phép: Nhấn Actions Vào Edit VPC settings Tích vào ô vuông và chọn Save Tiếp theo, chúng ta sẽ tập tạo Subnet. "
+},
+{
+	"uri": "/vi/2-introductions3/",
+	"title": "Giới thiệu về S3",
+	"tags": [],
+	"description": "",
+	"content": "Introduction to Amazon S3 Overview Amazon Simple Storage Service (Amazon S3) là một dịch vụ lưu trữ đối tượng cung cấp khả năng thay đổi quy mô, mức độ sẵn sàng của dữ liệu, độ bảo mật và hiệu suất hàng đầu trong ngành.\nS3 được xây dựng để đáp ứng yêu cầu của khách hàng thuộc mọi quy mô và ngành nghề, đều có thể dùng dịch vụ này để lưu trữ và bảo vệ bất kỳ lượng dữ liệu nào.\nAmazon S3 được thiết kế để đảm bảo độ bền 99,999999999% (11 9’s) và lưu trữ dữ liệu của hàng triệu ứng dụng cho các công ty trên toàn thế giới.\nNội dung Tạo S3 bucket và tải file lên bucket\n"
+},
+{
+	"uri": "/vi/3-preparation-steps/2.subnet/",
+	"title": "Create Subnet",
+	"tags": [],
+	"description": "",
+	"content": "Create Subnet Trong giao diện VPC: Chọn Subnets Chọn Create Subnet Trong giao diện Create Subnet: Chọn workshop-vpc Trong giao diện Subnet settings: Subnet name: Nhập Public Subnet 1 Chọn AZ ap-southeast-1a IPv4 subnet CIDR block: nhập 10.10.1.0/24 Kéo xuống và chọn Add new subnet Tiếp tục thực hiện việc tạo subnet với các thông tin dưới đây: Public Subnet 2 với CIDR là 10.10.2.0/24 nằm trong Availability Zone ap-southeast-1b Private Subnet 1 với CIDR là 10.10.3.0/24 nằm trong Availability Zone ap-southeast-1a Private Subnet 2 với CIDR là 10.10.4.0/24 nằm trong Availability Zone ap-southeast-1b Kiểm tra thông tin và chọn Create Subnet. Cho phép tự động cấp phát public ip address cho 2 public subnet. Trong giao diện Subnets: Chọn Public Subnet 1 Nhấn Actions Nhấn Edit subnets settings Bên dưới Auto-assign IP settings: Chọn Enable auto-assign public IPv4 address Rồi Save Thực hiện lại quá trình với Public Subnet 2 "
+},
+{
+	"uri": "/vi/4-create-an-e2-server/2.connecttoec2andownloadawscli/",
+	"title": "Kết nối tới EC2 và tải AWS CLI",
+	"tags": [],
+	"description": "",
+	"content": "kiểm tra kết nối Có nhiều cách kết nối EC2, các bạn có thể tham khảo connect to EC2 using PuTTY. Trong bài lab này, chúng ta sẽ sử dụng MobaXterm để kết nối EC2.\nTải MobaXterm Nhấn vào GET MOBAXTERM NOW Trong giao diện: Chọn Download now Sử dụng MobaXterm Sau khi tải MobaXterm, giải nén và mở nó. Truy cập giao diệnEC2: Chọn EC2 Public Copy Public IPv4 address Mở MobaXterm Chọn Session Rồi Nhấn vào SSH Nhập Remote host (địa chỉ IPv4 public) Đặt tên username là ec2-user Use private key: Chọn đường dẫn của aws-keypair.pem đã tạo và tải về máy lúc tạo EC2. Then Nhấn vào OK Kết nối thành công. Thực hiện lệnh sau để kiểm tra kết nối internet của máy ảo EC2 Public: ping amazon.com -c5 Tài liệu tham khảo để tải AWS CLI Trong EC2 Public, để tải AWS CLI, chạy câu lệnh dưới: curl \u0026quot;https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip\u0026quot; -o \u0026quot;awscliv2.zip\u0026quot;\nNếu dòng unzip awscliv2.zip xuất hiện, nhấn Enter.\nChạy câu lệnh cuối: sudo ./aws/install Xác nhận đã cài đặt thành công AWS CLI với câu lệnh: aws --version Nếu không thể tìm thấy lệnh aws, có thể bạn cần khởi động lại terminal hoặc thực hiện các bước sửa lỗi trong Hướng dẫn sửa lỗi AWS CLI.\nBạn đã tải và cài đặt AWS CLI thành công trên máy ảo EC2 trong public subnet có thể kết nối với internet. - Bây giờ, ta sẽ dùng câu lệnh aws s3 ls liệt kê tất cả các bucket mà người dùng sở hữu.\nSau khi chạy câu lệnh aws s3 ls, thì ta thấy có lỗi: Unable to locate credential\nKết nối vào máy chủ EC2 Private và kiểm tra kết nối internet Truy cập giao diện EC2:\nChọn Instances Chọn EC2 Private Chọn Details Copy Private IPv4 addresses Thực hiện lệnh ping tới địa chỉ IP private của EC2 Private để kiểm tra kết nối từ máy chủ EC2 Public sang máy chủ EC2 Private. Chúng ta kiểm tra kết nối giữa 2 EC2 instance bằng câu lệnh:: ping 10.10.3.124\nEC2 Private sẽ không có public IP address vì chúng ta không gán cho máy chủ này public IP. Để có thể ssh vào EC2 Private, chúng ta sẽ thực hiện kết nối ssh từ EC2 Public thông qua private IP address của EC2 Private. - Download công cụ pscp vào cùng thư mục chứa file aws-keypair.ppk để thực hiện copy file aws-keypair.pem từ máy của chúng ta vào EC2 Public. Bạn tải an RSA and DSA key generation utility là dạng puttygen.exe\nBạn tải an SCP client, i.e. command-line secure file copy là dạng pscp.exe\nTa dùng puttygen.exe để generate key Chọn Load Chọn workshop-keypair Chọn OK Hoàn thành generation key. Khởi chạy Command Prompt. Chuyển đường dẫn tới thư mục bạn vừa download pscp. Chạy lệnh dưới đây để upload file workshop-keypair.pem lên thư mục /home/ec2-user/ của máy chủ EC2 Public. Bạn sẽ cần thay thế thông số public IP address của EC2 Public trước khi chạy câu lệnh. Command Prompt\rpscp -i workshop-keypair.ppk workshop-keypair.pem ec2-user@\u0026lt;EC2 PUBLIC public IP address\u0026gt;:/home/ec2-user/ Quay trở lại giao diện kết nối EC2. Để đảm bảo bạn copy file aws-keypair.pem lên máy chủ EC2 Public ta thực hiện lệnh: Linux\rls Cập nhật quyền cho file aws-keypair.pem bằng cách chạy lệnh chmod 400 workshop-keypair.pem. AWS yêu cầu file key pair cần được hạn chế quyền truy cập trước khi được sử dụng để kết nối tới máy chủ EC2. chmod 400 workshop-keypair.pem SSH tới EC2 private server OpenSSH\rssh -i workshop-keypair.pem ec2-user@\u0026lt;EC2 Private server\u0026#39;s private IP address\u0026gt; Thực hiện ping test tới aws.amazon.com. Bạn có thể thấy, chúng ta không thể kết nối internet từ EC2 Private. Trong bước tiếp theo chúng ta sẽ tạo NAT Gateway để cho phép máy chủ EC2 Private kết nối internet theo chiều từ nội bộ đi ra. Giữ nguyên kết nối tới EC2 Private để chúng ta có thể kiểm tra kết nối tới internet sau khi hoàn tất tạo và cấu hình NAT Gateway nhé. Linux\rping aws.amazon.com "
+},
+{
+	"uri": "/vi/1-introduction-to-vpc/1.2-route-table/",
+	"title": "Route Table ",
+	"tags": [],
+	"description": "",
+	"content": "Route table Route Table hay còn gọi là bảng định tuyến, cái mà chịu trách nhiệm cung cấp hướng dẫn định tuyến và được gán vào các Subnets.\nVí dụ: bạn tạo VPC với lớp mạng 10.0.0.0/16, cùng 2 subnet 10.0.0.0/24,10.0.1.0/24 thì mỗi subnets mặc định sẽ được gán 1 default route table.\nBên trong route table sẽ có route entry:\nDestination: 10.0.0.0/16 Target: local Route entry này thể hiện các tài nguyên tạo ra trong cùng 1 VPC có thể kết nối với nhau.\n"
+},
+{
+	"uri": "/vi/5-introductiontovpcendpoint/2.ec2privateaccesss3/",
+	"title": "Tương tác với S3 thông qua AWS CLI",
+	"tags": [],
+	"description": "",
+	"content": "Tương tác với S3 thông qua AWS CLI Bây giờ, để EC2 private chúng ta có thể tương tác với S3 bucket thì ta phải modify IAM role cho EC2 Private này.\nTruy cập giao diện EC2: Nhấn vào Instances Chọn EC2 Private Nhấn vào Actions Nhấn vào Security Nhấn vào Modify IAM role Trong giao diện Modify IAM role: Trên thanh tìm kiếm, Chọn EC2FullAccessS3 Nhấn vào Update IAM role Sau khi modifying IAM role, gõ aws s3 ls và xem kết quả. Chúng ta vẫn gặp lỗi Unable to locate credentials.\nĐiều này có thể xảy ra do EC2 Private của ta không đi ra ngoài Internet nên không thể biết được là đi qua Endpoint nào. Có 2 cách để chúng ta có thể giải quyết vấn đề này.\nNhập aws configure Default region name: gõ ap-southeast-1 Ở đây, ap-southeast-1 chính là chúng ta đang đặc tả cái region mà chúng ta tạo endpoint vì EC2 Private không có kết nối ra ngoài internet nên không thể biết được đi qua endpoint nào. Rồi gõ aws s3 ls để xem kết quả. Bây giờ, chúng ta đã thấy được bucket bucket-workshop của chúng ta Cách khác, chúng ta dùng câu lệnh aws s3 ls \u0026ndash;region ap-southeast-1. Ở đây** \u0026ndash;region ap-southeast-1** cũng chính là đặc tả cho endpoint mà chúng ta đã tạo ở region Singapore. Trước tiên, bạn cần dùng câu lệnh aws configure để chỉnh default region name về None để có thể thực hiện câu lệnh aws s3 ls \u0026ndash;region ap-southeast-1. Linux Terminal\raws s3 ls --region ap-southeast-1 Bạn có thể tìm hiểu thêm một số câu lệnh để có thể thực hành thêm.\nThông qua bài lab này, ta có thể hiểu được cách mà các tài nguyên trong VPC có thể kết nối riêng tư với một số dịch vụ AWS như S3.\nTiếp theo, chúng ta sẽ tới bước xoá tài nguyên.\n"
+},
+{
+	"uri": "/vi/3-preparation-steps/",
+	"title": "Các bước chuẩn bị",
+	"tags": [],
+	"description": "",
+	"content": "Các bước chuẩn bị Trong bài lab này, chúng ta sẽ xây dựng một mô hình theo sơ đồ bên dưới:\nNội dung Tạo VPC Tạo Subnet Tạo Internet Gateway Tạo Route Table Tạo Security Group "
+},
+{
+	"uri": "/vi/1-introduction-to-vpc/1.3-internet-gateway/",
+	"title": "Internet Gateway",
+	"tags": [],
+	"description": "",
+	"content": "\nInternet Gateway Internet Gateway là một thành phần của VPC có khả năng mở rộng theo chiều ngang, có tính dự phòng và sẵn có cao, cho phép giao tiếp giữa VPC của bạn và internet. Nó hỗ trợ cả IPv4 và IPv6.\nInternet Gateway cho phép các tài nguyên trong các public subent của bạn (như các EC2 instances) kết nối với internet nếu tài nguyên đó có địa chỉ pblic IPv4 hoặc địa chỉ IPv6. Tương tự, các tài nguyên trên internet có thể bắt đầu một kết nối đến các tài nguyên trong subnet của bạn bằng cách sử dụng địa chỉ public IPv4 hoặc địa chỉ IPv6.\n"
+},
+{
+	"uri": "/vi/3-preparation-steps/3.internetgateway/",
+	"title": "Tạo Internet Gateway",
+	"tags": [],
+	"description": "",
+	"content": "Tạo Internet Gateway Trong giao diện VPC: Chọn Internet gateways Chọn Create internet gateway Trong giao diện Create internet gateway: For the Name tag, enter workshop-internet-gateway Then click on Create internet gateway Hoàn thành việc tạo Internet Gateway Triển khai Attach VPC: Nhấn Actions Chọn Attach to VPC Chọn workshop-vpc, VPC ID sẽ được tự động điền. Chọn Attach internet gateway Kiểm tra state của Internet Gateway. Tiếp theo, chúng ta sẽ cấu hình route table cho các Subnet. "
+},
+{
+	"uri": "/vi/4-create-an-e2-server/3.natgateway/",
+	"title": "Tạo NAT Gateway",
+	"tags": [],
+	"description": "",
+	"content": "Tạo NAT Gateway Truy cập giao diện VPC: Chọn Elastic IPs Nhấn vào Allocate Elastic IP address Trong giao diện Allocate Elastic IP address: Network border group: chọn ap-southeast-1 Public IPv4 address pool: chọn Amazon\u0026rsquo;s pool of IPv4 addresses Kéo xuống và chọn Allocate Trong giao diện VPC: Chọn NAT gateways Nhấn vào Create NAT gateway Trong giao diện Create NAT gateway: Name: Nhập workshop-NATGW Subnet: Chọn Public Subnet 1 ConnectiviNhấn vào: Chọn Public Elastic IP allocation: Nhấn Elastic IP vừa mới tạo Xem và chọn Create NAT gateway. Cấu hình Route Table Private Trong giao diện VPC: Chọn Route tables Nhấn vào Route Table Private Nhấn vào Actions và chọn Edit routes Trong giao diện Edit routes : Chọn Add route Destination: Nhập 0.0.0.0/0 Target: NAT Gateway và chọn workshop-NATGW Nhấn Save changes Sau khi tạo NAT Gateway, kiểm tra ping aws.amazon.com thành công từ EC2 Private Bây giờ, hãy thực thi câu lệnh aws s3 ls trong terminal của EC2 Private. Sau khi chạy câu lệnh aws s3 ls, thì ta thấy có lỗi: Unable to locate credential. Có thể thấy lỗi xảy ra giống hệt với EC2 trong public Subnet. Điều này có thể giải thích thông qua permission của S3 bucket. "
+},
+{
+	"uri": "/vi/1-introduction-to-vpc/1.4-nat-gateway/",
+	"title": "NAT Gateway",
+	"tags": [],
+	"description": "",
+	"content": "\nNAT Gateway NAT Gateway là một dịch vụ Network Address Translation (NAT). Bạn có thể sử dụng một NAT gateway để các máy ảo trong một private subnet có thể kết nối với các dịch vụ bên ngoài VPC của bạn, nhưng các dịch vụ bên ngoài không thể bắt đầu một kết nối với những máy ảo đó.\nAWS cung cấp 2 phương thức cho phép các EC2 bên trong Private subnet có quyền được truy cập Internet, đó là NAT Instance và NAT Gateway. Với các trường hợp thông thường, thì ta nên sử dụng NAT Gateway thay cho NAT Instance. NAT Gateway đảm bảo tính sẵn sàng và băng thông cao hơn, đồng thời đòi hỏi ít nỗ lực quản trị hơn so với NAT Instance.\nĐể tạo một một NAT gateway, ta phải chỉ định một mạng con (public) và một địa chỉ Elastic IP. Cần đảm bảo địa chỉ Elastic IP đang không được liên kết với bất cứ Instance hoặc một Network interface nào khác.\n"
+},
+{
+	"uri": "/vi/4-create-an-e2-server/4.createtiamrole/",
+	"title": "Tạo IAM Role",
+	"tags": [],
+	"description": "",
+	"content": "Tổng quan Đặt vấn đề: Chúng ta có 2 EC2 instance ở public và private subnet có thể đi ra internet. Liệu ta có thể dùng câu lệnh aws s3 ls để xem các bucket s3 được không?\nCâu trả lời là không. Như các bạn đã thấy khi gõ câu lệnh trên terminal của EC2 trong public subnet hoặc private subnet. Dù S3 endpoint public nhưng ta không có quyền được thấy những dữ liệu trong s3 bucket vì điều đó quá nguy hiểm, có thể dẫn đến lỗi bảo mật của dữ liệu.\nGiống như việc bạn đang đi trên đường, bạn thấy một ngôi nhà rất đẹp. Tuy nhiên, các bạn không có quyền đi vô căn nhà đó, thấy có bao nhiêu căn phòng, tài sản.\nĐiều này có thể được giải thích tại đây\nCâu hỏi được đặt ra là muốn những EC2 instance có thể thấy được dữ liệu trong s3 bucket thì chúng ta có thể làm những cách nào?\nChúng ta có 2 lựa chọn:\nLựa chọn 1: Gán access/sceret key vào terminal của EC2 terminal thông qua câu lệnh aws configure. Cách làm này cực kì dễ nhưng đây lại là cách cực kì tệ. Không nên làm. Lựa chọn 2: Dùng IAM Role. Ta có thể gán các quyền truy cập S3 như ReadOnly hay fullAccess cho các EC2 instance mà ta muốn. Trong bài lab này, ta sẽ thực hành tạo một IAM Role và gán nó vào EC2 instance trong private subnet.\nTạo IAM Role Truy cập giao diện AWS Management Console: Tìm IAM Chọn IAM Trong giao diện IAM: Chọn Roles Rồi chọn Create role Trong giao diện Create role: Về Trusted entity type, chọn AWS service Về Service or use case, chọn EC2 Choose a use case for the specified service, chọn EC2 Rồi chọn Next Trên thanh tìm kiếm: Gõ S3 Rồi tìm AmazonS3FullAccess và chọn nó Kiểm tra và chọn Next Nhập EC2FullAccessS3 như là tên Role. Kiểm tra và chọn Create role. Hoàn thành. Bây giờ, ta sẽ đi tạo endpoint để giúp cho các resources bên trong VPC có thể kết nối riêng tư tới S3 bucket. "
+},
+{
+	"uri": "/vi/4-create-an-e2-server/",
+	"title": "Tạo máy chủ EC2",
+	"tags": [],
+	"description": "",
+	"content": "Tạo máy chủ EC2 Ở bước này, chúng ta sẽ tạo 2 máy chủ EC2 ( EC2 instance ) như kiến trúc dưới đây.\nNội dung Tạo máy chủ EC2 Kết nối tới EC2 public và tải AWS CLI Tạo NAT Gateway Tạo IAM role "
+},
+{
+	"uri": "/vi/3-preparation-steps/4.route-table/",
+	"title": "Tạo Route table",
+	"tags": [],
+	"description": "",
+	"content": "Tạo Route table Trong giao diện VPC: Chọn Route tables Nhấn Create route table Trong giao diện Create route table: Name: nhập Route Table Public VPC: chọn workshop-vpc Rồi nhấn vào Create route table Nhấn vào Actions Chọn Edit routes Trong giao diện Edit routes, chọn Add route Điền Destination: 0.0.0.0/0 đại diện cho internet. Trong phần Target, chọn Internet Gateway, rồi chọn Internet Gateway vừa tạo(workshop-internet-gateway). Nhấn Save changes Chắc chắn rằng Route Table Public được chọn Nhấn Actions, rồi nhấn Edit subnet associations Trong giao diện Edit subnet associations, chọn Public Subnet 1 và Public Subnet 2 Rồi nhấn Save associations Kiểm tra và xem lại Subnet associations. Tiếp theo, ta sẽ tạo route table cho private subnet Trong giao diện Route tables, chọn Create route table Name: Nhập Route Table Private VPC: chọn workshop-vpc Rồi nhấn Create route table Bạn đã tạo thành công route table của private subnet Chắc chắn rằng Route Table Private được chọn Chọn Actions, nhấn vào Edit subnet associations Trong giao diệN Edit subnet associations , chọn Private Subnet 1 và Private Subnet 2 Rồi nhấn Save associations Kiểm tra và xác nhận, Subnet associations. "
+},
+{
+	"uri": "/vi/5-introductiontovpcendpoint/",
+	"title": "Giới thiệu về VPC Endpoint ",
+	"tags": [],
+	"description": "",
+	"content": "\nTổng quan VPC Endpoints VPC endpoint cho phép VPC của bạn kết nối riêng tư tới một dịch vụ của AWS mà không cần phải yêu cầu Internet gateway, NAT device, VPN connection, hoặc AWS Direct Connect.\nTraffic giữa VPC của bạn và dịch vụ AWS không rời khỏi mạng Amazon.\nEndpoints là các thiết bị ảo. Chúng được mở rộng theo chiều ngang, dự phòng và là các thành phần của VPC có sẵn đáng tin cậy mà cho phép giao tiếp từ các tài nguyên từ các tài nguyên của bạn mà không đặt ra các rủi ro về khả dụng hay hạn chế băng thông cho lưu lượng mạng của bạn.\nVPC Endpoint policy VPC Endpoint có thể hỗ trợ VPC endpoint policy. A VPC endpoint policy là một chính sách IAM (Identity and Access Management) của AWS mà bạn đính kèm vào một endpoint khi bạn tạo hoặc sửa đổi điểm kết nối đó.\nNếu bạn không đính kèm policy khi mà bạn tạo endpoint thì AWS sẽ giúp bạn đính kèm sẵn default policy cái mà cho phép toàn quyền truy cập tới dịch vụ.\nCó 2 loại VPC endpoint mà bạn có thể dùng để truy cập các dịch vụ một cách riêng tư:\nGateway VPC Endpoints: hỗ trợ Amazon S3 và Amazon DynamoDB Interface VPC Endpoints: Các dịch vụ được cung cấp bởi AWS PrivateLink, bao gồm nhiều dịch vụ của AWS. Trong bài lab này, ta tập trung đặc biệt vào Gateway VPC Endpoints cái mà hỗ trợ kết nối với Amazon S3.\nBạn có thể đọc thêm tài liệu về Endpoint dành cho S3 tại đây\nNội dung Tạo S3 Gateway Endpoint Tương tác với S3 thông qua AWS CLI "
+},
+{
+	"uri": "/vi/1-introduction-to-vpc/1.5-security-group/",
+	"title": "Security Group",
+	"tags": [],
+	"description": "",
+	"content": "Security group Security Group là một \u0026ldquo;trạng thái\u0026rdquo; tường lửa ảo kiểm soát lưu lượng mạng đến và đi từ các tài nguyên AWS và các máy Amazon EC2.\nMặc định, Security group chặn mọi truy cập đến và cho phép mọi truy cập đi.\nKhi bạn tạo một VPC (Virtual Private Cloud), nó sẽ đi kèm với một default security group. Bạn có thể tạo thêm các security group cho một VPC, mỗi security group có thể có các luật inbound và outbound riêng biệt của mình. Bạn có thể chỉ định source, port range, và protocol cho mỗi luật inbound. Bạn cũng có thể chỉ định destination, port range, và protocol cho mỗi luật outbound.\nBạn có thể thêm hoặc loại bỏ các luật cho một Security group (cũng được gọi là cấp quyền hoặc thu hồi quyền truy cập vào hoặc ra). Một quy tắc áp dụng cho truy cập đến (ingress) hoặc truy cập đi (egress). Bạn có thể cấp quyền truy cập cho một nguồn hoặc đích cụ thể.\nHoạt động ở tầng giao diện mạng (Instance)\n"
+},
+{
+	"uri": "/vi/3-preparation-steps/5.securitygroup/",
+	"title": "Tạo Security Group",
+	"tags": [],
+	"description": "",
+	"content": "Tạo Security Group cho máy chủ nằm trong Public subnet Trong giao diện VPC : Chọn Security Group Chọn Create Security Group Trong giao diện Create Security Group: Security Group Name: nhập Public Subnet SG Description: Nhập Allow SSH và Ping for servers in the public subnet. Chọn workshop-vpc VPC Cấu hình Inbound rules: Trong Inbound rules, chọn Add rule. Chọn Type: SSH và Source: My IP. (Sử dụng địa chỉ IPv4 public của bạn) Chọn Add rule để thêm một rule mới. Chọn Type: All ICMP - IPv4 và Source: Anywhere. Cho phép ping từ bất kì địa chỉ IP nào. Kiểm tra Outbound rules và Chọn Create security group Complete the creation of the security group for the server located in the public subnet Tạo Security Group cho máy chủ nằm trong Private subnet Trong giao diện VPC: Chọn Security Groups Chọn Create security group Security Group Name: Nhập Private Subnet SG Description: Nhập Allow SSH và Ping for servers in the private subnet. Chọn workshop-vpc VPC Cấu hình Inbound rules: Trong Inbound rules, Chọn Add rule. Chọn Type: SSH và leave Source: Custom. Tìm và Chọn Public Subnet SG. Lựa chọn này cho phép tất cả những máy chủ được gán Public subnet SG được SSH vào các máy chủ được gán Private subnet SG. Chọn Add rule để thêm một rule mới. Chọn Type: All ICMP IPv4 và Source: Anywhere. Cho phép ping từ bất kì địa chỉ IP nào. Rồi nhấn Create security group Như vậy chúng ta đã tạo được 2 Security Group cho các máy chủ nằm trong public subnet và private subnet. Tiếp theo, chúng ta sẽ tiến hành tạo 2 máy chủ EC2. "
+},
+{
+	"uri": "/vi/6-cleanup/",
+	"title": "Xoá các tài nguyên",
+	"tags": [],
+	"description": "",
+	"content": "Terminate EC2 instances Truy cập giao diện EC2: Chọn Instances Chọn EC2 Public và EC2 Private Nhấn Instance state Chọn Terminate instance Xoá VPC Endpoint Truy cập giao diện VPC: Chọn Endpoints Chọn workshop-endpoint Nhấn Actions và chọn Delete VPC endpoints Gõ delete và Nhấn Delete. Xoá Internet Gateway In the VPC: Chọn Internet gateways Chọn workshop-internet-gateway Nhấn Actions và chọn Detach from VPC Nhấn Detach internet gateway. Thành công detach Internet Gateway Nhấn Actions và chọn Delete internet gateway Gõ delete và Nhấn Delete. Bạn đã xoá thành công workshop-internet-gateway. Xoá VPC Truy cập giao diện VPC: Chọn Your VPCs Chọn workshop-vpc Nhấn Actions và chọn Delete VPC Gõ delete và nhấn Delete. Bạn đã xoá thành công workshop-vpc. Xoá S3 bucket Truy cập giao diện S3: Chọn bucket-workshop Nhấn Empty Gõ permanently delete và nhấn Empty. Bạn đã xoá thành công làm rỗng bucket bucket-workshop. Quay về giao diện S3: Chọn bucket-workshop và nhấn Delete Gõ bucket-workshop và Nhấn Delete bucket. Bạn đã xoá thành công bucket workshop-bucket. "
+},
+{
+	"uri": "/vi/categories/",
+	"title": "Categories",
+	"tags": [],
+	"description": "",
+	"content": ""
+},
+{
+	"uri": "/vi/tags/",
+	"title": "Tags",
+	"tags": [],
+	"description": "",
+	"content": ""
+}]
